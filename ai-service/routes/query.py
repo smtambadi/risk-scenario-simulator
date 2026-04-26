@@ -22,7 +22,10 @@ def query():
         if cached:
             return jsonify({
                 "result": json.loads(cached),
-                "cached": True
+                "cached": True,
+                "meta": {
+                    "is_fallback": False
+                }
             })
 
         # Step 1: Get context
@@ -50,12 +53,30 @@ Return ONLY JSON:
 }}
 """
 
-        # Step 3: AI call
-        ai_response = client.generate(prompt)
+        # Step 3: AI call with fallback
+        try:
+            ai_response = client.generate(prompt)
 
-        response = ai_response.get("result") if isinstance(ai_response, dict) else ai_response
+            response = ai_response.get("result") if isinstance(ai_response, dict) else ai_response
+            meta = ai_response.get("meta", {}) if isinstance(ai_response, dict) else {}
 
-        # Step 4: Fallback
+            is_fallback = False
+
+        except Exception as e:
+            # 🟡 FALLBACK RESPONSE
+            response = {
+                "answer": "Potential risk detected. Further analysis recommended.",
+                "risk_type": "General",
+                "confidence": 0.5
+            }
+
+            meta = {
+                "error": str(e)
+            }
+
+            is_fallback = True
+
+        # Step 4: Fallback if empty
         if not response:
             response = {
                 "answer": "Unable to process",
@@ -63,7 +84,7 @@ Return ONLY JSON:
                 "confidence": 0.5
             }
 
-        # Step 5: Convert
+        # Step 5: Convert string → JSON
         if isinstance(response, str):
             try:
                 response = json.loads(response)
@@ -74,13 +95,17 @@ Return ONLY JSON:
                     "confidence": 0.6
                 }
 
-        # STEP 6: SAVE CACHE
-        set_cache(cache_key, json.dumps(response))
+        # STEP 6: SAVE CACHE (only non-fallback)
+        if not is_fallback:
+            set_cache(cache_key, json.dumps(response))
 
         return jsonify({
             "result": response,
             "sources": docs,
-            "meta": ai_response.get("meta", {}),
+            "meta": {
+                **meta,
+                "is_fallback": is_fallback
+            },
             "cached": False
         })
 
