@@ -5,7 +5,6 @@ from services.logger import logger
 import json
 
 query_bp = Blueprint("query", __name__)
-client = GroqClient()
 
 @query_bp.route("/query", methods=["POST"])
 def query():
@@ -16,6 +15,9 @@ def query():
 
         if not question:
             return jsonify({"error": "Question is required"}), 400
+
+        # ✅ CREATE CLIENT HERE (NOT GLOBAL)
+        client = GroqClient()
 
         # ✅ CACHE CHECK
         cache_key = f"query:{question}"
@@ -29,7 +31,7 @@ def query():
                 "meta": {"is_fallback": False}
             })
 
-        # ✅ NO CHROMA (fast startup)
+        # ✅ NO CHROMA
         docs = []
         context = ""
 

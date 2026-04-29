@@ -8,8 +8,8 @@ from routes.report import report_bp
 app = Flask(__name__)
 
 # ✅ THEN register blueprints
-app.register_blueprint(query_bp)
 app.register_blueprint(health_bp)
+app.register_blueprint(query_bp)
 app.register_blueprint(report_bp)
 
 @app.route("/")
@@ -18,4 +18,5 @@ def home():
 
 if __name__ == "__main__":
     print("Flask is starting...")
-    app.run(debug=True, port=5000, use_reloader=False)
+
+    app.run(debug=True, host="0.0.0.0", port=5000, use_reloader=False)
