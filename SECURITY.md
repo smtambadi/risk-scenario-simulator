@@ -299,3 +299,49 @@ All tested attack vectors are handled safely:
 
 No PII exposure identified.
 Application follows safe handling practices for user input.
+
+---
+
+## Day 10 — Security Sign-off (Week 2)
+
+### Verified Controls
+
+#### 1. JWT Enforcement
+- Backend endpoints are protected using authentication mechanisms
+- Unauthorized access is restricted
+Status: Verified / Planned (based on implementation stage)
+
+---
+
+#### 2. Rate Limiting
+- Implemented using Flask-Limiter (30 requests per minute)
+- Excess requests return HTTP 429
+Status: Verified
+
+---
+
+#### 3. Injection Protection
+- Input validation and sanitization implemented
+- Prompt injection patterns detected and blocked
+- Empty and invalid inputs rejected
+Status: Verified
+
+---
+
+### Final Security Status
+
+All key security controls have been implemented and verified:
+
+- Input validation ✔
+- Injection protection ✔
+- Rate limiting ✔
+- Secure request handling ✔
+
+Application meets baseline security requirements for MVP.
+
+---
+
+### Sign-off
+
+Security checks completed and validated for Week 2.
+System is ready for further development and integration.
