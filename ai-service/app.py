@@ -61,16 +61,28 @@ def security_layer():
 # Global response security headers (fixes ZAP findings)
 @app.after_request
 def add_security_headers(response):
-    # Prevent XSS attacks
-    response.headers["Content-Security-Policy"] = "default-src 'self'"
+    # Prevent MIME sniffing
+    response.headers["X-Content-Type-Options"] = "nosniff"
 
     # Prevent clickjacking
     response.headers["X-Frame-Options"] = "DENY"
 
-    # Prevent MIME-type sniffing
-    response.headers["X-Content-Type-Options"] = "nosniff"
+    # Strong CSP (fix ZAP warning better)
+    response.headers["Content-Security-Policy"] = (
+    "default-src 'self'; "
+    "script-src 'self'; "
+    "style-src 'self'; "
+    "img-src 'self' data:; "
+    "font-src 'self'; "
+    "connect-src 'self'; "
+    "media-src 'self'; "
+    "object-src 'none'; "
+    "frame-ancestors 'none'; "
+    "base-uri 'self'; "
+    "form-action 'self'"
+    )
 
-    # Reduce server info exposure (optional)
+    # Reduce server exposure
     response.headers["Server"] = "SecureServer"
 
     return response
