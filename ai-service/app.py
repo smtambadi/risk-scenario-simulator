@@ -12,6 +12,7 @@ app.register_blueprint(query_bp)
 app.register_blueprint(health_bp)
 app.register_blueprint(report_bp)
 
+# Optional health check route
 @app.route("/")
 def home():
     return "Server working "

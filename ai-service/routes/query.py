@@ -5,6 +5,7 @@ from services.logger import logger
 import json
 import os
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 query_bp = Blueprint("query", __name__)
 
 @query_bp.route("/query", methods=["POST"])

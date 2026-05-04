@@ -1,6 +1,7 @@
 import os
-import requests
 import time
+import logging
+from groq import Groq
 from dotenv import load_dotenv
 
 load_dotenv()
