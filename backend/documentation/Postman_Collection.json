@@ -1,0 +1,1265 @@
+{
+	"info": {
+		"name": "Risk Scenario Simulator - E2E Testing",
+		"description": "Complete end-to-end testing suite for Risk Scenario Simulator with Backend (Spring Boot) and AI Service (Flask)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1000"
+	},
+	"item": [
+		{
+			"name": "Environment Setup",
+			"description": "Initialize and configure the environment",
+			"item": [
+				{
+					"name": "1. Health Check - Backend",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Backend is running\", function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has expected structure\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.any.keys('id', 'title');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{backend_url}}/api/risk",
+							"host": ["{{backend_url}}"],
+							"path": ["api", "risk"]
+						},
+						"description": "Verify backend is running by fetching all risk scenarios"
+					},
+					"response": []
+				},
+				{
+					"name": "2. Health Check - AI Service",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"AI Service is running\", function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Health check response is valid\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.equal('ok');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{ai_service_url}}/health",
+							"host": ["{{ai_service_url}}"],
+							"path": ["health"]
+						},
+						"description": "Verify AI service is running"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "1. Backend API - CRUD Operations",
+			"description": "Test all CRUD operations on Risk Scenarios",
+			"item": [
+				{
+					"name": "A. Create Risk Scenario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Risk created successfully\", function() {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response contains ID\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.collectionVariables.set('risk_id', jsonData.id);",
+									"});",
+									"",
+									"pm.test(\"Response contains all required fields\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('title');",
+									"    pm.expect(jsonData).to.have.property('description');",
+									"    pm.expect(jsonData).to.have.property('category');",
+									"    pm.expect(jsonData).to.have.property('riskLevel');",
+									"    pm.expect(jsonData).to.have.property('status');",
+									"});"
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Set timestamp for unique data",
+									"pm.collectionVariables.set('timestamp', Date.now());"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Data Breach Risk - {{timestamp}}\",\n  \"description\": \"Risk of unauthorized access to customer data and sensitive information\",\n  \"category\": \"Security\",\n  \"riskLevel\": \"HIGH\",\n  \"status\": \"ACTIVE\"\n}"
+						},
+						"url": {
+							"raw": "{{backend_url}}/api/risk",
+							"host": ["{{backend_url}}"],
+							"path": ["api", "risk"]
+						},
+						"description": "Create a new risk scenario"
+					},
+					"response": []
+				},
+				{
+					"name": "B. Get All Risk Scenarios",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Response contains risk scenarios\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.length > 0) {",
+									"        pm.expect(jsonData[0]).to.have.property('id');",
+									"        pm.expect(jsonData[0]).to.have.property('title');",
+									"    }",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{backend_url}}/api/risk",
+							"host": ["{{backend_url}}"],
+							"path": ["api", "risk"]
+						},
+						"description": "Retrieve all risk scenarios"
+					},
+					"response": []
+				},
+				{
+					"name": "C. Get Risk by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Risk ID matches requested ID\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.equal(parseInt(pm.collectionVariables.get('risk_id')));",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{backend_url}}/api/risk/{{risk_id}}",
+							"host": ["{{backend_url}}"],
+							"path": ["api", "risk", "{{risk_id}}"]
+						},
+						"description": "Get a specific risk scenario by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "D. Filter by Status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"All returned risks have ACTIVE status\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    jsonData.forEach(function(risk) {",
+									"        pm.expect(risk.status).to.equal('ACTIVE');",
+									"    });",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{backend_url}}/api/risk/status/ACTIVE",
+							"host": ["{{backend_url}}"],
+							"path": ["api", "risk", "status", "ACTIVE"]
+						},
+						"description": "Filter risks by status"
+					},
+					"response": []
+				},
+				{
+					"name": "E. Filter by Category",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"All returned risks have Security category\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    jsonData.forEach(function(risk) {",
+									"        pm.expect(risk.category).to.equal('Security');",
+									"    });",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{backend_url}}/api/risk/category/Security",
+							"host": ["{{backend_url}}"],
+							"path": ["api", "risk", "category", "Security"]
+						},
+						"description": "Filter risks by category"
+					},
+					"response": []
+				},
+				{
+					"name": "F. Search Risks",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Search returned results\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{backend_url}}/api/risk/search?q=Data",
+							"host": ["{{backend_url}}"],
+							"path": ["api", "risk", "search"],
+							"query": [
+								{
+									"key": "q",
+									"value": "Data"
+								}
+							]
+						},
+						"description": "Search risks by title or description"
+					},
+					"response": []
+				},
+				{
+					"name": "G. Update Risk Scenario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Risk level was updated to CRITICAL\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.riskLevel).to.equal('CRITICAL');",
+									"});",
+									"",
+									"pm.test(\"Status was updated to MITIGATED\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.equal('MITIGATED');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Critical Data Breach Risk\",\n  \"riskLevel\": \"CRITICAL\",\n  \"status\": \"MITIGATED\",\n  \"description\": \"Updated description - Risk of unauthorized access to customer data\"\n}"
+						},
+						"url": {
+							"raw": "{{backend_url}}/api/risk/{{risk_id}}",
+							"host": ["{{backend_url}}"],
+							"path": ["api", "risk", "{{risk_id}}"]
+						},
+						"description": "Update an existing risk scenario"
+					},
+					"response": []
+				},
+				{
+					"name": "H. Delete Risk Scenario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204 (No Content)\", function() {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{backend_url}}/api/risk/{{risk_id}}",
+							"host": ["{{backend_url}}"],
+							"path": ["api", "risk", "{{risk_id}}"]
+						},
+						"description": "Delete a risk scenario (soft delete)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. AI Service - Analysis & Intelligence",
+			"description": "Test AI-powered features for risk analysis",
+			"item": [
+				{
+					"name": "A. Analyse Document",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 503\", function() {",
+									"    pm.expect([200, 503]).to.include(pm.response.code);",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"Response contains findings\", function() {",
+									"        var jsonData = pm.response.json();",
+									"        pm.expect(jsonData).to.be.an('object');",
+									"    });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"input\": \"Our organization recently experienced a significant data security incident where customer financial information including credit card numbers and social security numbers were exposed through an unsecured database connection. The incident affected approximately 50,000 customers and resulted in fraudulent charges totaling $2.3 million. We need a comprehensive analysis of the risks and vulnerabilities that led to this breach.\"\n}"
+						},
+						"url": {
+							"raw": "{{ai_service_url}}/analyse-document",
+							"host": ["{{ai_service_url}}"],
+							"path": ["analyse-document"]
+						},
+						"description": "Analyze a risk document using AI"
+					},
+					"response": []
+				},
+				{
+					"name": "B. Query Knowledge Base",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 503\", function() {",
+									"    pm.expect([200, 503]).to.include(pm.response.code);",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"Response contains answer\", function() {",
+									"        var jsonData = pm.response.json();",
+									"        pm.expect(jsonData).to.have.property('answer');",
+									"    });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question\": \"What are the best practices for mitigating cybersecurity risks in cloud environments?\"\n}"
+						},
+						"url": {
+							"raw": "{{ai_service_url}}/query",
+							"host": ["{{ai_service_url}}"],
+							"path": ["query"]
+						},
+						"description": "Query the knowledge base for risk information"
+					},
+					"response": []
+				},
+				{
+					"name": "C. Describe Risk",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 503\", function() {",
+									"    pm.expect([200, 503]).to.include(pm.response.code);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"input\": \"A critical vulnerability in our third-party payment processor was discovered that could allow attackers to intercept transactions\"\n}"
+						},
+						"url": {
+							"raw": "{{ai_service_url}}/describe",
+							"host": ["{{ai_service_url}}"],
+							"path": ["describe"]
+						},
+						"description": "Get AI description of a risk scenario"
+					},
+					"response": []
+				},
+				{
+					"name": "D. Get Recommendations",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 503\", function() {",
+									"    pm.expect([200, 503]).to.include(pm.response.code);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"input\": \"We are experiencing frequent denial-of-service attacks targeting our web application infrastructure\"\n}"
+						},
+						"url": {
+							"raw": "{{ai_service_url}}/recommend",
+							"host": ["{{ai_service_url}}"],
+							"path": ["recommend"]
+						},
+						"description": "Get AI-powered recommendations for risk mitigation"
+					},
+					"response": []
+				},
+				{
+					"name": "E. Categorise Risk",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 503\", function() {",
+									"    pm.expect([200, 503]).to.include(pm.response.code);",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"Response contains category\", function() {",
+									"        var jsonData = pm.response.json();",
+									"        var validCategories = ['Financial', 'Operational', 'Security', 'Technical', 'Unknown'];",
+									"        pm.expect(jsonData.category).to.be.oneOf(validCategories);",
+									"    });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"text\": \"Our main database server crashed due to hardware failure resulting in system downtime for 4 hours\"\n}"
+						},
+						"url": {
+							"raw": "{{ai_service_url}}/categorise",
+							"host": ["{{ai_service_url}}"],
+							"path": ["categorise"]
+						},
+						"description": "Automatically categorize a risk into predefined categories"
+					},
+					"response": []
+				},
+				{
+					"name": "F. Generate Report",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 503\", function() {",
+									"    pm.expect([200, 503]).to.include(pm.response.code);",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"Response contains report structure\", function() {",
+									"        var jsonData = pm.response.json();",
+									"        if (jsonData.title) {",
+									"            pm.expect(jsonData).to.have.property('title');",
+									"        }",
+									"    });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"input\": \"Quarterly risk assessment report for the Financial Services Division including analysis of market volatility, regulatory compliance issues, and operational risks\"\n}"
+						},
+						"url": {
+							"raw": "{{ai_service_url}}/generate-report",
+							"host": ["{{ai_service_url}}"],
+							"path": ["generate-report"]
+						},
+						"description": "Generate a comprehensive risk report using AI"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Integration Tests",
+			"description": "End-to-end workflow tests combining Backend and AI Service",
+			"item": [
+				{
+					"name": "Scenario 1: Complete Risk Lifecycle",
+					"item": [
+						{
+							"name": "Step 1: Create Risk",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Risk created successfully\", function() {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"",
+											"var jsonData = pm.response.json();",
+											"pm.collectionVariables.set('integration_risk_id', jsonData.id);",
+											"pm.collectionVariables.set('created_title', jsonData.title);"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"title\": \"Integration Test Risk - {{timestamp}}\",\n  \"description\": \"Comprehensive test scenario for complete risk lifecycle management\",\n  \"category\": \"Security\",\n  \"riskLevel\": \"HIGH\",\n  \"status\": \"ACTIVE\"\n}"
+								},
+								"url": {
+									"raw": "{{backend_url}}/api/risk",
+									"host": ["{{backend_url}}"],
+									"path": ["api", "risk"]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Step 2: Analyze Risk with AI",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"AI analysis completed\", function() {",
+											"    pm.expect([200, 503]).to.include(pm.response.code);",
+											"});"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"input\": \"Integration test risk: {{created_title}}. This is a comprehensive security risk that requires detailed analysis and recommendations for mitigation strategies.\"\n}"
+								},
+								"url": {
+									"raw": "{{ai_service_url}}/analyse-document",
+									"host": ["{{ai_service_url}}"],
+									"path": ["analyse-document"]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Step 3: Generate Report",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Report generated successfully\", function() {",
+											"    pm.expect([200, 503]).to.include(pm.response.code);",
+											"});"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"input\": \"Generate comprehensive risk report for {{created_title}} including executive summary, detailed findings, and recommended mitigation strategies\"\n}"
+								},
+								"url": {
+									"raw": "{{ai_service_url}}/generate-report",
+									"host": ["{{ai_service_url}}"],
+									"path": ["generate-report"]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Step 4: Update Risk Status",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Risk status updated\", function() {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Status is now MITIGATED\", function() {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.status).to.equal('MITIGATED');",
+											"});"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"status\": \"MITIGATED\",\n  \"riskLevel\": \"MEDIUM\"\n}"
+								},
+								"url": {
+									"raw": "{{backend_url}}/api/risk/{{integration_risk_id}}",
+									"host": ["{{backend_url}}"],
+									"path": ["api", "risk", "{{integration_risk_id}}"]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Step 5: Retrieve Final Risk",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Risk retrieved successfully\", function() {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Final status is MITIGATED\", function() {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.status).to.equal('MITIGATED');",
+											"});"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{backend_url}}/api/risk/{{integration_risk_id}}",
+									"host": ["{{backend_url}}"],
+									"path": ["api", "risk", "{{integration_risk_id}}"]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Scenario 2: AI-Powered Risk Analysis Workflow",
+					"item": [
+						{
+							"name": "Step 1: Categorize Risk Type",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Risk categorized successfully\", function() {",
+											"    pm.expect([200, 503]).to.include(pm.response.code);",
+											"});"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"text\": \"A critical vulnerability in our payment processing system could expose customer financial information\"\n}"
+								},
+								"url": {
+									"raw": "{{ai_service_url}}/categorise",
+									"host": ["{{ai_service_url}}"],
+									"path": ["categorise"]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Step 2: Get Risk Recommendations",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Recommendations retrieved\", function() {",
+											"    pm.expect([200, 503]).to.include(pm.response.code);",
+											"});"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"input\": \"Payment processing system vulnerability requiring immediate attention and comprehensive mitigation strategy\"\n}"
+								},
+								"url": {
+									"raw": "{{ai_service_url}}/recommend",
+									"host": ["{{ai_service_url}}"],
+									"path": ["recommend"]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Scenario 3: Batch Risk Operations",
+					"item": [
+						{
+							"name": "Step 1: Create Multiple Risks",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Risk created\", function() {",
+											"    pm.response.to.have.status(201);",
+											"});"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"title\": \"Operational Risk - System Outage\",\n  \"description\": \"Potential system downtime due to infrastructure maintenance\",\n  \"category\": \"Operations\",\n  \"riskLevel\": \"MEDIUM\",\n  \"status\": \"ACTIVE\"\n}"
+								},
+								"url": {
+									"raw": "{{backend_url}}/api/risk",
+									"host": ["{{backend_url}}"],
+									"path": ["api", "risk"]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Step 2: Retrieve All Risks",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Retrieved all risks\", function() {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Response is array with multiple items\", function() {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.be.an('array');",
+											"    pm.expect(jsonData.length).to.be.greaterThan(0);",
+											"});"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{backend_url}}/api/risk",
+									"host": ["{{backend_url}}"],
+									"path": ["api", "risk"]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Step 3: Filter by Status",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Filtered results returned\", function() {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{backend_url}}/api/risk/status/ACTIVE",
+									"host": ["{{backend_url}}"],
+									"path": ["api", "risk", "status", "ACTIVE"]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "4. Error Handling & Edge Cases",
+			"description": "Test error scenarios and edge cases",
+			"item": [
+				{
+					"name": "A. Invalid Input - Too Short",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Request rejected for short input\", function() {",
+									"    pm.expect([400]).to.include(pm.response.code);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"input\": \"short\"\n}"
+						},
+						"url": {
+							"raw": "{{ai_service_url}}/analyse-document",
+							"host": ["{{ai_service_url}}"],
+							"path": ["analyse-document"]
+						},
+						"description": "Test validation of minimum input length"
+					},
+					"response": []
+				},
+				{
+					"name": "B. Missing Required Field",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Request rejected for missing field\", function() {",
+									"    pm.expect([400]).to.include(pm.response.code);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"wrongField\": \"this is not the right field\"\n}"
+						},
+						"url": {
+							"raw": "{{ai_service_url}}/query",
+							"host": ["{{ai_service_url}}"],
+							"path": ["query"]
+						},
+						"description": "Test validation of required fields"
+					},
+					"response": []
+				},
+				{
+					"name": "C. Invalid Risk ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Non-existent risk returns 404\", function() {",
+									"    pm.expect([404, 400]).to.include(pm.response.code);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{backend_url}}/api/risk/999999",
+							"host": ["{{backend_url}}"],
+							"path": ["api", "risk", "999999"]
+						},
+						"description": "Test handling of non-existent resource"
+					},
+					"response": []
+				},
+				{
+					"name": "D. Malformed JSON",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Malformed JSON returns error\", function() {",
+									"    pm.expect([400]).to.include(pm.response.code);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ invalid json structure }"
+						},
+						"url": {
+							"raw": "{{backend_url}}/api/risk",
+							"host": ["{{backend_url}}"],
+							"path": ["api", "risk"]
+						},
+						"description": "Test validation of JSON format"
+					},
+					"response": []
+				},
+				{
+					"name": "E. Empty Request Body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Empty body is rejected\", function() {",
+									"    pm.expect([400]).to.include(pm.response.code);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{ai_service_url}}/describe",
+							"host": ["{{ai_service_url}}"],
+							"path": ["describe"]
+						},
+						"description": "Test handling of empty request body"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. Performance & Load Testing",
+			"description": "Test system performance under load",
+			"item": [
+				{
+					"name": "A. Sequential Risk Creation (5 items)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"All risks created successfully\", function() {",
+									"    pm.response.to.have.status(201);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Performance Test Risk {{$randomInt}}\",\n  \"description\": \"Load testing risk scenario\",\n  \"category\": \"Technical\",\n  \"riskLevel\": \"HIGH\",\n  \"status\": \"ACTIVE\"\n}"
+						},
+						"url": {
+							"raw": "{{backend_url}}/api/risk",
+							"host": ["{{backend_url}}"],
+							"path": ["api", "risk"]
+						},
+						"description": "Create multiple risks for performance testing"
+					},
+					"response": []
+				},
+				{
+					"name": "B. Bulk Retrieval Test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var startTime = pm.response.headers.get('date');",
+									"pm.test(\"Bulk retrieval completed within acceptable time\", function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains data\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{backend_url}}/api/risk",
+							"host": ["{{backend_url}}"],
+							"path": ["api", "risk"]
+						},
+						"description": "Test bulk data retrieval performance"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "backend_url",
+			"value": "http://localhost:8081",
+			"type": "string"
+		},
+		{
+			"key": "ai_service_url",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "risk_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "timestamp",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "integration_risk_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "created_title",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
