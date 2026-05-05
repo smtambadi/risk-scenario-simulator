@@ -5,9 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4a8cddfa-7bd7-4dfd-bbec-cc2b32a28941" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/src/main/resources/db/migration/V1__init.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/API_DOCUMENTATION.md" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/risk/risk_simulator/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/risk/risk_simulator/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/risk/risk_simulator/controller/RiskScenarioController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/risk/risk_simulator/controller/RiskScenarioController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/risk/risk_simulator/entity/RiskScenario.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/risk/risk_simulator/entity/RiskScenario.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/risk/risk_simulator/repository/RiskScenarioRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/risk/risk_simulator/repository/RiskScenarioRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/risk/risk_simulator/service/RiskScenarioService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/risk/risk_simulator/service/RiskScenarioService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -68,7 +74,9 @@
       <workItem from="1777563001862" duration="1065000" />
       <workItem from="1777566439457" duration="730000" />
       <workItem from="1777739659311" duration="1285000" />
-      <workItem from="1777743036846" duration="825000" />
+      <workItem from="1777743036846" duration="1584000" />
+      <workItem from="1777910461932" duration="1417000" />
+      <workItem from="1777968961557" duration="1443000" />
     </task>
     <servers />
   </component>
