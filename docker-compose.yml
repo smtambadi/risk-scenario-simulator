@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: risk-sim-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: risk_simulator
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1253236
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Spring Boot Backend
+  backend:
+    build: ./backend
+    container_name: risk-sim-backend
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/risk_simulator
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1253236
+      AI_SERVICE_URL: http://ai-service:5000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Flask AI Service
+  ai-service:
+    build: ./ai-service
+    container_name: risk-sim-ai
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./ai-service/.env
+    environment:
+      FLASK_ENV: production
+    volumes:
+      - ai_chroma_data:/app/chroma_data
+    restart: unless-stopped
+
+  # React Frontend (nginx)
+  frontend:
+    build: ./frontend
+    container_name: risk-sim-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  ai_chroma_data:

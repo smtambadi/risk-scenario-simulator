@@ -36,6 +36,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             // Extract token from Authorization header (Bearer <token>)
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 token = authHeader.substring(7);
+            }
+            // Fallback: extract token from query param (for SSE EventSource which can't set headers)
+            if (token == null) {
+                token = request.getParameter("token");
+            }
+            if (token != null) {
                 username = jwtUtil.extractUsername(token);
             }
 

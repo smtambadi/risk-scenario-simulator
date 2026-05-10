@@ -1,6 +1,8 @@
 package com.risk.risk_simulator.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,9 +26,12 @@ public class RiskScenario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotBlank(message = "Title is required")
+    @Size(max = 255, message = "Title must be less than 255 characters")
     @Column(name = "title", nullable = false, length = 255)
     private String title;
 
+    @NotBlank(message = "Description is required")
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;
 
@@ -36,8 +41,32 @@ public class RiskScenario {
     @Column(name = "risk_level", length = 50)
     private String riskLevel;
 
-    @Column(name = "status", length = 50, columnDefinition = "VARCHAR(50) DEFAULT 'ACTIVE'")
+    @Column(name = "status", length = 50, columnDefinition = "VARCHAR(50) DEFAULT 'OPEN'")
     private String status;
+
+    @Column(name = "risk_score")
+    private Double riskScore;
+
+    @Column(name = "impact", length = 50)
+    private String impact;
+
+    @Column(name = "likelihood", length = 50)
+    private String likelihood;
+
+    @Column(name = "mitigation_plan", columnDefinition = "TEXT")
+    private String mitigationPlan;
+
+    @Column(name = "projected_cost")
+    private Long projectedCost;
+
+    @Column(name = "ai_description", columnDefinition = "TEXT")
+    private String aiDescription;
+
+    @Column(name = "ai_recommendations", columnDefinition = "TEXT")
+    private String aiRecommendations;
+
+    @Column(name = "is_deleted")
+    private Boolean deleted;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -50,7 +79,13 @@ public class RiskScenario {
     @PrePersist
     protected void onCreate() {
         if (status == null) {
-            status = "ACTIVE";
+            status = "OPEN";
+        }
+        if (deleted == null) {
+            deleted = false;
+        }
+        if (riskScore == null) {
+            riskScore = 0.0;
         }
     }
 }

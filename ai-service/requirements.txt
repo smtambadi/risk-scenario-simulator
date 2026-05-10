@@ -1,2 +1,8 @@
-Flask
-Flask-Limiter
+flask
+flask-cors
+flask-limiter
+groq
+chromadb
+sentence-transformers
+python-dotenv
+cachetools
